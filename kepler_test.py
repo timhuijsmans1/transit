@@ -33,17 +33,15 @@ def eccentric_anomaly(e, P, M):
 
     i = 0
     dif = 1
-    E_new = 0
 
     while dif > 0.01:
-
-        E_new = E_value[i] + (M - (E_value[i] - e * math.sin(E_value[i])) / (1 - e * math.cos(E_value[i])))
-        E_value.append(E_new)
-        dif = abs(E_value[i+1]) - abs(E_value[i])
+        M_index = E_value[i] - e * math.sin(E_value[i])
+        E_index = E_value[i] + ((M - M_index) / (1 - e * math.cos(E_value[i])))
+        E_value.append(E_index)
+        dif = abs(E_value[i + 1] - E_value[i])
         i += 1
 
     return E_value[-1]
-
 
 #Step 4: calculate the rectengular coordinates with results form step 1, 2 and 3
 def rect_coord(TI, e, E):
@@ -66,7 +64,7 @@ def kepler_cropped(a, i, w, omega, P, T, e, timestep):# loop over timesteps unti
     for t in np.arange (0, 1, timestep):
         M = mean_anomaly(P, t, T)
         E = eccentric_anomaly(e, P, M)
-
+        
         # This is a little hacky because the first coordinate will never be added alhough it might be moving positive x,
         # but it works for now as long as we choose T accordingly
         if t == 0:    
@@ -91,45 +89,53 @@ def kepler(a, i, w, omega, P, T, e, timestep):# loop over timesteps until one tr
     coordinates = []
     x_coordinates = []
     y_coordinates = []
+    E_list = []
+    M_list = []
+    t_list = []
 
     for t in np.arange (0, 1, timestep):
         M = mean_anomaly(P, t, T)
         E = eccentric_anomaly(e, P, M)
+        E_list.append(E)
+        M_list.append(M)
+        t_list.append(t)
+
 
         x_coordinates.append(rect_coord(TI, e, E)[0])
         y_coordinates.append(rect_coord(TI, e, E)[1])
             
         coordinates.append([rect_coord(TI, e, E)[0], rect_coord(TI, e, E)[1]])
         
-
+    plt.plot(t_list, E_list)
+    plt.show()
     return x_coordinates, y_coordinates, coordinates
 
 # initial conditions
-a = 0.3 * 4.848 * (10 ** -6) #boogseconden
-i = math.radians(270) #graden (90 degrees is head on)
-w = math.radians(180) #graden
-omega = math.radians(0) #graden
-P = 1 #786.1 #years
-T = 2550095.66 #time passage through periastron (seconden?) #where the planet starts
-e = 0.52
-timestep = 0.000000001
+a = 0.3 #boogseconden
+i = math.radians(0)
+w = math.radians(0) 
+omega = math.radians(0)
+P = 1 
+T = 0.15 #time passage through periastron (seconden?) #where the planet starts
+e = 0.28
+timestep = 1./24
 
 # you can choose here if you would like to run the cropped version or the regular orbit
-coord = kepler_cropped(a, i, w, omega, P, T, e, timestep)
-#coord = kepler(a, i, w, omega, P, T, e, timestep)
+#coord = kepler_cropped(a, i, w, omega, P, T, e, timestep)
+coord = kepler(a, i, w, omega, P, T, e, timestep)
 x_coordinates = coord[0]
 y_coordinates = coord[1]
 coordinates = coord[2]
 
-if __name__ == "__main__":
-    for i in range(0,len(coordinates)):
-        plt.plot(0,0,'yo', markersize=10)
-        plt.plot(x_coordinates[0], y_coordinates[0], 'ro', markersize=5,label='start')
-        plt.plot(x_coordinates[:i],y_coordinates[:i],'bo', markersize=1)
-        plt.plot(x_coordinates[i], y_coordinates[i], "go", markersize = 10)
-        plt.draw()
-        plt.pause(0.001)
-        plt.clf()
-        plt.xlim(-0.000004,0.000004)
-        plt.ylim(-0.000004,0.000004)
-    plt.show()
+# if __name__ == "__main__":
+#     for i in range(0,len(coordinates)):
+#         plt.plot(0,0,'yo', markersize=10)
+#         plt.plot(x_coordinates[0], y_coordinates[0], 'ro', markersize=5,label='start')
+#         plt.plot(x_coordinates[:i],y_coordinates[:i],'bo', markersize=1)
+#         plt.plot(x_coordinates[i], y_coordinates[i], "go", markersize = 10)
+#         plt.draw()
+#         plt.pause(0.001)
+#         plt.clf()
+#         plt.xlim(-0.6,0.4)
+#         plt.ylim(-0.4,0.4)
+#     plt.show()
