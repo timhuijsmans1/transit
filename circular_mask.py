@@ -135,7 +135,7 @@ def star_mask_by_planet(star_array, cx, cy, r_planet, star_brightness, planet_st
 
     if heatmap:
         star_array[ymin:ymax + 1, xmin:xmax + 1] = old_matrix * r_planet
-        if planet_step == 250:
+        if planet_step == 290:
             plt.imshow(star_array, cmap = 'afmhot')
             plt.colorbar()
             plt.title('Relative brightness of the star with limb darkening')
@@ -205,7 +205,6 @@ def inclination_plot(normalizer):
     translated_kepler_2 = retrieve_coordinates(a, math.radians(89.8), w_angle, omega, P, T, e, timestep, crop_range, star_radius, star_array_size, r_star)
     translated_kepler_3 = retrieve_coordinates(a, math.radians(89.6), w_angle, omega, P, T, e, timestep, crop_range, star_radius, star_array_size, r_star)
     translated_kepler_4 = retrieve_coordinates(a, math.radians(89.5), w_angle, omega, P, T, e, timestep, crop_range, star_radius, star_array_size, r_star)
-    translated_kepler_5 = retrieve_coordinates(a, math.radians(89.4), w_angle, omega, P, T, e, timestep, crop_range, star_radius, star_array_size, r_star)
 
     if normalizer == True:
         max_brightness = star_brightness
@@ -217,16 +216,14 @@ def inclination_plot(normalizer):
     brightness_profile_2 = planet_progression(translated_kepler_2, star, r_planet, star_brightness, False) / max_brightness
     brightness_profile_3 = planet_progression(translated_kepler_3, star, r_planet, star_brightness, False) / max_brightness
     brightness_profile_4 = planet_progression(translated_kepler_4, star, r_planet, star_brightness, False) / max_brightness
-    brightness_profile_5 = planet_progression(translated_kepler_5, star, r_planet, star_brightness, False) / max_brightness
 
 
     plt.plot(brightness_profile_1, label = '90')
     plt.plot(brightness_profile_2, label = '89.8')
     plt.plot(brightness_profile_3, label = '89.6')
     plt.plot(brightness_profile_4, label = '89.5')
-    plt.plot(brightness_profile_5, label = '89.4')
     plt.title("Lightcurve of a transit with limb-darkening (from periastron)")
-    plt.legend(title= 'Inclination angle (deg)', loc= 'center')
+    plt.legend(title= 'Inclination angle (deg)', loc= 'upper center')
     plt.xlim(0, len(translated_kepler_1))
     plt.xlabel("Time (minutes)")
     plt.ylabel("Total image brightness")
@@ -260,8 +257,9 @@ def radii_plot(normalizer):
     plt.title("Lightcurve of a transit with limb-darkening (from periastron)")
     plt.legend(title= 'radius of planet in earth radii', loc= 'center')
     plt.xlim(0, len(translated_kepler))
+    plt.ylim(0.9993, 1)
     plt.xlabel("Time (minutes)")
-    plt.ylabel("Total image brightness")
+    plt.ylabel("Relative image brightness")
     plt.show()
 
 def circular_ring_plot(normalizer):
@@ -350,18 +348,19 @@ def comparison_plot_ellipses(normalizer):
     else:
         max_brightness = 1
 
-    brightness_profile_regular = np.array(planet_progression(translated_kepler, star, r_planet_regular, star_brightness, False)) / max_brightness
     brightness_profile_ellipse_1 = np.array(planet_progression(translated_kepler, star, r_ellipse_1, star_brightness, False)) / max_brightness
     brightness_profile_ellipse_2 = np.array(planet_progression(translated_kepler, star, r_ellipse_2, star_brightness, False)) / max_brightness
 
-    brightness_profile_comparison = brightness_profile_ellipse_1 / brightness_profile_ellipse_2
+    #brightness_profile_comparison = brightness_profile_ellipse_1 / brightness_profile_ellipse_2
 
-    plt.plot(brightness_profile_comparison, label = '45 deg / 90 deg')
-    plt.title("Lightcurve of a transit with limb-darkening (from periastron)")
-    plt.legend(title= 'type of system', loc= 'lower center')
+    plt.plot(brightness_profile_ellipse_1, label = '45')
+    plt.plot(brightness_profile_ellipse_2, label = '90')
+    #plt.plot(brightness_profile_comparison, label = '45 deg / 90 deg')
+    plt.title("Lightcurve of an elliptical ring transit with limb-darkening (from periastron)")
+    plt.legend(title= 'orientation of ellipse (degrees)', loc= 'center')
     plt.xlim(0, len(translated_kepler))
     plt.xlabel("Time (minutes)")
-    plt.ylabel("Total image brightness")
+    plt.ylabel("Relative image brightness")
     plt.show()
 
 def comparison_plot_circle(normalizer):
@@ -390,19 +389,19 @@ def comparison_plot_circle(normalizer):
     print((len(r_planet_regular) ** 2) - np.sum(r_planet_regular))
 
     # circular and ring brightness profile
-    # brightness_profile_regular = np.array(planet_progression(translated_kepler, star, r_planet_regular, star_brightness, False)) / max_brightness
-    # brightness_profile_ring = np.array(planet_progression(translated_kepler, star, r_planet_ring, star_brightness, False)) / max_brightness
+    brightness_profile_regular = np.array(planet_progression(translated_kepler, star, r_planet_regular, star_brightness, False)) / max_brightness
+    brightness_profile_ring = np.array(planet_progression(translated_kepler, star, r_planet_ring, star_brightness, False)) / max_brightness
 
     # brightness_profile_comparison = brightness_profile_regular / brightness_profile_ring
 
-    #plt.plot(brightness_profile_regular, label = 'regular')
-    #plt.plot(brightness_profile_ring, label = 'ring')
-    plt.plot(brightness_profile_comparison, label = 'regular / ring')
-    plt.title("Lightcurve of a transit with limb-darkening (from periastron)")
-    plt.legend(title= 'Ratio of transit curves', loc= 'lower center')
+    plt.plot(brightness_profile_regular, label = 'regular')
+    plt.plot(brightness_profile_ring, label = 'ring')
+    #plt.plot(brightness_profile_comparison, label = 'regular / ring')
+    plt.title("Lightcurve of a (ring) transit with limb-darkening (from periastron)")
+    plt.legend(title= 'Type of system', loc= 'center')
     plt.xlim(0, len(translated_kepler))
     plt.xlabel("Time (minutes)")
-    plt.ylabel("Total image brightness")
+    plt.ylabel("Relative image brightness")
     plt.show()
 
 def comparison_plot_multi(normalizer):
@@ -432,27 +431,60 @@ def comparison_plot_multi(normalizer):
 
     # circular and ring brightness profile
     brightness_profile_regular = np.array(planet_progression(translated_kepler, star, r_planet_regular, star_brightness, False)) / max_brightness
-    brightness_profile_ring = np.array(planet_progression(translated_kepler, star, r_planet_ring, star_brightness, True)) / max_brightness
+    brightness_profile_ring = np.array(planet_progression(translated_kepler, star, r_planet_ring, star_brightness, False)) / max_brightness
 
-    brightness_profile_comparison = brightness_profile_regular / brightness_profile_ring
+    #brightness_profile_comparison = brightness_profile_regular / brightness_profile_ring
 
     plt.plot(brightness_profile_regular, label = 'regular')
-    plt.plot(brightness_profile_ring, label = 'ring')
+    plt.plot(brightness_profile_ring, label = 'multi ring')
     #plt.plot(brightness_profile_comparison, label = 'regular / ring')
-    plt.title("Lightcurve of a transit with limb-darkening (from periastron)")
-    plt.legend(title= 'Ratio of transit curves', loc= 'center')
+    plt.title("Lightcurve of a multi ring transit with limb-darkening (from periastron)")
+    plt.legend(title= 'type of system', loc= 'center')
     plt.xlim(0, len(translated_kepler))
     plt.xlabel("Time (minutes)")
-    plt.ylabel("Total image brightness")
+    plt.ylabel("Relative image brightness")
     plt.show()
+
+def no_planet_system(normalizer):
+    """planet moves outside the edge of the star, only the ring transits"""
+    planet_a = 20
+
+    # set up matrix for regular circular orbit
+    r_output = ring_array(planet_a)
+    
+    # set up matrix for elliptical ring and planet
+    r_theta_output_1 = ellipse_array(planet_a,45,0.6)
+    r_theta_output_2 = ellipse_array(planet_a,90,0.6)
+    r_ellipse_1 = (1 - (r_theta_output_1>planet_a+100) * (r_theta_output_1<planet_a+140)) * (r_output>planet_a)
+    r_ellipse_2 = (1 - (r_theta_output_2>planet_a+100) * (r_theta_output_2<planet_a+140)) * (r_output>planet_a)
+    
+    translated_kepler = retrieve_coordinates(a, math.radians(90.58), w_angle, omega, P, T, e, timestep, crop_range, star_radius, star_array_size, r_star)
+    
+    if normalizer == True:
+        max_brightness = star_brightness
+    else:
+        max_brightness = 1
+
+    brightness_profile_ellipse_1 = np.array(planet_progression(translated_kepler, star, r_ellipse_1, star_brightness, False)) / max_brightness
+    brightness_profile_ellipse_2 = np.array(planet_progression(translated_kepler, star, r_ellipse_2, star_brightness, False)) / max_brightness
+
+    plt.plot(brightness_profile_ellipse_1, label = 'ellipse 45 deg')
+    plt.plot(brightness_profile_ellipse_2, label = 'ellipse 90 deg')
+    plt.title("Lightcurve of an elliptical ring-only transit with limb-darkening (from periastron)")
+    plt.legend(title= 'type of system', loc= 'right center')
+    plt.xlim(0, len(translated_kepler))
+    plt.xlabel("Time (minutes)")
+    plt.ylabel("Relative image brightness")
+    plt.show()
+
 
 """
 Choose the type of plot you want to generate here
 """
-#radii_plot()
-#inclination_plot()
-#circular_ring_plot()
+#radii_plot(True)
+#inclination_plot(True)
 #elliptical_ring_plot(True)
 #comparison_plot_ellipses(True)
 #comparison_plot_circle(True)
-comparison_plot_multi(True)
+#comparison_plot_multi(True)
+no_planet_system(True)
