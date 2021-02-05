@@ -126,20 +126,20 @@ crop_range = r_star * 1.3
 if __name__ == "__main__":
     # initial conditions
     a = 0.3 #AU
-    i = math.radians(90)
+    i = math.radians(0)
     w_angle = math.radians(180) 
     omega = math.radians(0)
     P = 0.5 # period of half a year
     T = -0.01 #time passage through periastron (seconden?) #where the planet starts
     e = 0
-    timestep = (0.000003802651) # 1 minutes when P is set to 0.5 yrs
+    timestep = (0.001) # 1 minutes when P is set to 0.5 yrs
 
     r_star = 0.01 * a
     crop_range = r_star * 1.3
 
     # you can choose here if you would like to run the cropped version or the regular orbit
-    coord = kepler_cropped(a, i, w_angle, omega, P, T, e, timestep, crop_range)
-    #coord = kepler(a, i, w_angle, omega, P, T, e, timestep)
+    #coord = kepler_cropped(a, i, w_angle, omega, P, T, e, timestep, crop_range)
+    coord = kepler(a, i, w_angle, omega, P, T, e, timestep)
     x_coordinates = coord[0]
     y_coordinates = coord[1]
     coordinates = coord[2]
@@ -153,6 +153,6 @@ if __name__ == "__main__":
         plt.draw()
         plt.pause(0.001)
         plt.clf()
-        plt.xlim(-0.02,0.02)
-        plt.ylim(-0.02,0.02)
+        plt.xlim(-0.4,0.4)
+        plt.ylim(-0.4,0.4)
     plt.show()
